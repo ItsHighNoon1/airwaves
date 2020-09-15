@@ -15,6 +15,7 @@ public:
 private:
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 	void updateViewport();
+	GLFWmonitor* bestMonitor();
 
 	GLFWwindow* window;
 	int width;

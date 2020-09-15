@@ -42,41 +42,13 @@ void WindowManager::fullscreen(bool fullscreen) {
 			return;
 		}
 
-		// Store the location and size of the window for when we go back
+		// Store the location and size of the window so we can find the best monitor or revert to windowed
 		glfwGetWindowPos(window, &windowedX, &windowedY);
 		glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
 
 		// Set fullscreen, we need the video mode and the monitor to go fullscreen on
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		GLFWmonitor** monitors;
-		const GLFWvidmode* mode;
-		int nmonitors;
-		int monitorX;
-		int monitorY;
-		int monitorWidth;
-		int monitorHeight;
-		monitors = glfwGetMonitors(&nmonitors);
-		int centerX = windowedX + windowedWidth / 2;
-		int centerY = windowedY + windowedHeight / 2;
-
-		// Go on a quest for the best monitor
-		for (int i = 0; i < nmonitors; i++) {
-			// Get monitor position data
-			mode = glfwGetVideoMode(monitors[i]);
-			glfwGetMonitorPos(monitors[i], &monitorX, &monitorY);
-			monitorWidth = mode->width;
-			monitorHeight = mode->height;
-
-			// Does this monitor contain window center?
-			if (centerX > monitorX && centerY > monitorY && 
-				centerX < monitorX + monitorWidth && centerY < monitorY + monitorHeight) {
-				monitor = monitors[i];
-				break;
-			}
-		}
-
-		// Finally set fullscreen
-		mode = glfwGetVideoMode(monitor);
+		GLFWmonitor* monitor = bestMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 	} else {
 		// Set windowed
@@ -116,4 +88,42 @@ void WindowManager::updateViewport() {
 	// Get the window size and call glViewport()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
+}
+
+GLFWmonitor* WindowManager::bestMonitor() {
+	// If for some reason we don't find a monitor, we will use primary
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+	// Get a list of monitors
+	int nmonitors;
+	GLFWmonitor** monitors = glfwGetMonitors(&nmonitors);
+
+	// We don't want to reallocate these for every monitor
+	const GLFWvidmode* mode;
+	int monitorX;
+	int monitorY;
+	int monitorWidth;
+	int monitorHeight;
+
+	// Find the center of the window, these should be set from the fullscreen method
+	int centerX = windowedX + windowedWidth / 2;
+	int centerY = windowedY + windowedHeight / 2;
+
+	// Iterate over the monitors
+	for (int i = 0; i < nmonitors; i++) {
+		// Get monitor position data
+		mode = glfwGetVideoMode(monitors[i]);
+		glfwGetMonitorPos(monitors[i], &monitorX, &monitorY);
+		monitorWidth = mode->width;
+		monitorHeight = mode->height;
+
+		// Does this monitor contain window center?
+		if (centerX > monitorX && centerY > monitorY &&
+			centerX < monitorX + monitorWidth && centerY < monitorY + monitorHeight) {
+			monitor = monitors[i];
+			break;
+		}
+	}
+
+	return monitor;
 }
