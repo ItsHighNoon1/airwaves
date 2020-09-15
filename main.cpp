@@ -1,5 +1,16 @@
 #include <iostream>
 
+#include "WindowManager.h"
+
 int main() {
-	std::cout << "first commit" << std::endl;
+	WindowManager wm = WindowManager(800, 500, "First window");
+	int i = 0;
+	while (!wm.update()) {
+		i++;
+		if (i == 600) {
+			std::cout << "Going fullscreen" << std::endl;
+			wm.fullscreen(true);
+		}
+	}
+	return 0;
 }

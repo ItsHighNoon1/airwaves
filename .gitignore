@@ -5,6 +5,9 @@
 *.png
 *.ogg
 
+# Go get your own glad.c
+glad.c
+
 # If a binary somehow gets in here, ignore it
 *.lib
 *.dll
@@ -12,6 +15,7 @@
 *.a
 *.so
 *.out
+x64/*
 
 # Visual Studio metadata that nobody else cares about
 *.vcxproj*
