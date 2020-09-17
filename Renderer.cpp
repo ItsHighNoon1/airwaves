@@ -1,11 +1,13 @@
 #include "Renderer.h"
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Loader.h"
 #include "Shader.h"
 
-Renderer::Renderer() : loader(Loader()), shader(Shader()) {
+Renderer::Renderer() {
 #ifdef _DEBUG
 	glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
 #else
@@ -19,7 +21,16 @@ Renderer::~Renderer() {
 	loader.cleanUp();
 }
 
-void Renderer::render(unsigned int texture) {
+void Renderer::render(float x, float y, float w, float h, float r, unsigned int texture) {
+	// Generate a transformation matrix
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(x, y, 0.0f));
+	modelMatrix = glm::rotate(modelMatrix, r, glm::vec3(0.0f, 0.0f, 1.0f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(w, h, 0.0f));
+
+	// Calculate mvp matrix
+	modelMatrix = projectionMatrix * (viewMatrix * modelMatrix);
+
 	// Set the sprite texture
 	if (currentTex != texture) {
 		currentTex = texture;
@@ -28,6 +39,7 @@ void Renderer::render(unsigned int texture) {
 
 	// Render a sprite
 	shader.start();
+	shader.uploadMatrix(glm::value_ptr(modelMatrix));
 	glBindVertexArray(loader.getQuadVAO());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }

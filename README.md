@@ -7,5 +7,3 @@ This game was created using the following open source technologies:
 - [GLFW](https://github.com/glfw/glfw) (Window management, input handling)
 - [glad](https://github.com/Dav1dde/glad) (OpenGL header)
 - [glm](https://github.com/g-truc/glm) (Maths)
-- [stb_image](https://github.com/nothings/stb) (Image loading)
-- [libvorbis](https://gitlab.xiph.org/xiph/vorbis) (Audio loading)

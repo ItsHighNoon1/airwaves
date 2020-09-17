@@ -26,6 +26,9 @@ Shader::Shader() {
 	// We can destroy the shaders now that we have a program
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+
+	// Get the location of the matrix uniform
+	matrixLocation = glGetUniformLocation(programID, "u_modelViewProjectionMatrix");
 }
 
 void Shader::start() {
@@ -36,6 +39,11 @@ void Shader::start() {
 void Shader::stop() {
 	// Unbind shader, usually not necessary
 	glUseProgram(0);
+}
+
+void Shader::uploadMatrix(float* matrix) {
+	// Upload modelViewProjection matrix
+	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, matrix);
 }
 
 void Shader::cleanUp() {
