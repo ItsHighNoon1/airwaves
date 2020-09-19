@@ -29,7 +29,7 @@ void Renderer::render(float x, float y, float w, float h, float r, unsigned int 
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(w, h, 0.0f));
 
 	// Calculate mvp matrix
-	modelMatrix = projectionMatrix * (viewMatrix * modelMatrix);
+	modelMatrix = viewMatrix * modelMatrix;
 
 	// Set the sprite texture
 	if (currentTex != texture) {
@@ -42,6 +42,14 @@ void Renderer::render(float x, float y, float w, float h, float r, unsigned int 
 	shader.uploadMatrix(glm::value_ptr(modelMatrix));
 	glBindVertexArray(loader.getQuadVAO());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+void Renderer::setCamera(glm::vec2 pos, float rot, float aspectRatio, float size) {
+	// Calculate view matrix
+	viewMatrix = glm::mat4(1.0f);
+	viewMatrix = glm::scale(viewMatrix, glm::vec3(size * aspectRatio, size, 0.0f));
+	viewMatrix = glm::rotate(viewMatrix, rot, glm::vec3(0.0f, 0.0f, 1.0f));
+	viewMatrix = glm::translate(viewMatrix, glm::vec3(-pos, 0.0f));
 }
 
 unsigned int Renderer::loadTexture(int width, int height, const void* data) {

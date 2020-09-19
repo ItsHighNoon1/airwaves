@@ -7,3 +7,4 @@ This game was created using the following open source technologies:
 - [GLFW](https://github.com/glfw/glfw) (Window management, input handling)
 - [glad](https://github.com/Dav1dde/glad) (OpenGL header)
 - [glm](https://github.com/g-truc/glm) (Maths)
+- [PortAudio](https://app.assembla.com/spaces/portaudio/git/source) (Audio)

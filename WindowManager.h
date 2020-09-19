@@ -8,8 +8,12 @@ class WindowManager {
 public:
 	WindowManager(int width, int height, const char* name);
 	~WindowManager();
-	void fullscreen(bool fullscreen);
 	bool update();
+	bool getKey(int key);
+	bool getMouseButton(int button);
+	void getMousePos(float* x, float* y);
+	void fullscreen(bool fullscreen);
+	float getLastDeltaTime();
 	int getWidth();
 	int getHeight();
 private:
@@ -24,4 +28,6 @@ private:
 	int windowedY;
 	int windowedWidth;
 	int windowedHeight;
+	long long int lastTime;
+	float frameTime = 1.0f;
 };

@@ -1,5 +1,7 @@
 #include "WindowManager.h"
 
+#include <chrono>
+
 WindowManager::WindowManager(int width, int height, const char* name) {
 	// Initialize GLFW
 	glfwInit();
@@ -33,6 +35,42 @@ WindowManager::~WindowManager() {
 	glfwTerminate();
 }
 
+bool WindowManager::update() {
+	// Update the screen
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+
+	// Calculate frame time
+	long long int currentTime = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	int deltaNs = currentTime - lastTime;
+	lastTime = currentTime;
+	frameTime = deltaNs * 0.000000001f;
+
+	// Return window status
+	return glfwWindowShouldClose(window);
+}
+
+bool WindowManager::getKey(int key) {
+	// Wrapper
+	return glfwGetKey(window, key) == GLFW_PRESS;
+}
+
+bool WindowManager::getMouseButton(int button) {
+	// Wrapper
+	return glfwGetMouseButton(window, button) == GLFW_PRESS;
+}
+
+void WindowManager::getMousePos(float* x, float* y) {
+	// Get mouse pos, then turn it into screen space coordinates
+	double mx;
+	double my;
+	glfwGetCursorPos(window, &mx, &my);
+	mx /= width;
+	my /= height;
+	*x = (float)mx * 2.0f - 1.0f;
+	*y = (float)my * 2.0f - 1.0f;
+}
+
 void WindowManager::fullscreen(bool fullscreen) {
 	// Changing window monitor counts as a resize, so it will run our resize callback
 	if (fullscreen) {
@@ -62,11 +100,9 @@ void WindowManager::fullscreen(bool fullscreen) {
 	}
 }
 
-bool WindowManager::update() {
-	// Update the screen and return the window status
-	glfwSwapBuffers(window);
-	glfwPollEvents();
-	return glfwWindowShouldClose(window);
+float WindowManager::getLastDeltaTime() {
+	// Getter for frameTime
+	return frameTime;
 }
 
 int WindowManager::getWidth() {
