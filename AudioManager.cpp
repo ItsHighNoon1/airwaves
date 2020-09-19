@@ -3,23 +3,30 @@
 #include <iostream>
 
 AudioManager::AudioManager() {
+	// Wrapper
 	Pa_Initialize();
+
+	// We shove all of our audio into one stream
 	Pa_OpenDefaultStream(&stream, 0, 1, paFloat32, 44100, paFramesPerBufferUnspecified, streamCallback, this);
 }
 
 AudioManager::~AudioManager() {
+	// Wrapper
 	Pa_Terminate();
 }
 
 void AudioManager::start() {
+	// Wrapper
 	Pa_StartStream(stream);
 }
 
 void AudioManager::stop() {
+	// Wrapper
 	Pa_StopStream(stream);
 }
 
 int AudioManager::newWave(int type) {
+	// Create a new wave
 	Wave w;
 	w.type = type;
 	w.x = 0.0f;
@@ -27,6 +34,11 @@ int AudioManager::newWave(int type) {
 	w.volume = 0.0f;
 	wavesPlaying[newWaveIndex] = w;
 	return newWaveIndex++;
+}
+
+void AudioManager::deleteWave(int wave) {
+	// Remove wave key/value from map
+	wavesPlaying.erase(wave);
 }
 
 void AudioManager::setWaveAttribs(int wave, int frequency, float volume) {

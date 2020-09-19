@@ -5,12 +5,14 @@
 #include <portaudio/portaudio.h>
 
 class AudioManager {
+	// Manages PortAudio
 public:
 	AudioManager();
 	~AudioManager();
 	void start();
 	void stop();
 	int newWave(int type);
+	void deleteWave(int wave);
 	void setWaveAttribs(int wave, int frequency, float volume);
 private:
 	struct Wave {

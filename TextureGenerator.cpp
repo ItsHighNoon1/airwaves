@@ -45,7 +45,7 @@ const void* TextureGenerator::checker(int width, int height, int r, int g, int b
 	return data;
 }
 
-const void* TextureGenerator::generateCircle(int width, int height) {
+const void* TextureGenerator::circle(int width, int height, int r, int g, int b, int widthFactor) {
 	// Generates a circle with some weird coloring
 	unsigned char* data = new unsigned char[width * height * 3];
 	
@@ -57,10 +57,11 @@ const void* TextureGenerator::generateCircle(int width, int height) {
 			int halfHeight = height / 2;
 			int x = i - halfWidth;
 			int y = j - halfHeight;
-			if (x * x + y * y < halfWidth * halfHeight) {
-				data[pixelIndex] = x * y;
-				data[pixelIndex + 1] = x * y + 85;
-				data[pixelIndex + 2] = x * y + 170;
+			int distanceFromEdge = halfWidth * halfHeight - (x * x + y * y);
+			if (distanceFromEdge > 0 && distanceFromEdge < widthFactor) {
+				data[pixelIndex] = r;
+				data[pixelIndex + 1] = g;
+				data[pixelIndex + 2] = b;
 			} else {
 				// Set it to black if we don't want anything there
 				data[pixelIndex] = 0;
@@ -73,8 +74,8 @@ const void* TextureGenerator::generateCircle(int width, int height) {
 	return data;
 }
 
-const void* TextureGenerator::wave(int width, int height, int r, int g, int b) {
-	// Generates a wave
+const void* TextureGenerator::sineWave(int width, int height, int r, int g, int b) {
+	// Generates a sine wave
 	unsigned char* data = new unsigned char[width * height * 3];
 
 	// Fill the texture with transparent
@@ -82,7 +83,7 @@ const void* TextureGenerator::wave(int width, int height, int r, int g, int b) {
 		data[i] = 0;
 	}
 
-	// Go over a sin wave and draw pixels
+	// Go over a sine wave and draw pixels
 	float x = 0.0f;
 	float twoPi = 2 * 3.14159f;
 	float increment = twoPi / width / 10.0f;
@@ -90,19 +91,121 @@ const void* TextureGenerator::wave(int width, int height, int r, int g, int b) {
 		// Get x and calculate i
 		x += increment;
 		int i = x / twoPi * width;
-		if (i > width) continue;
+		if (i > width || i < 0) continue;
 
 		// Find y and calculate j
 		float y = sinf(x);
 		y = y / 2.0f + 0.5f;
 		int j = y * height;
-		if (j > height) continue;
+		if (j > height || j < 0) continue;
 
 		// Set pixel
 		int pixelIndex = (i + j * width) * 3;
 		data[pixelIndex] = r;
 		data[pixelIndex + 1] = g;
 		data[pixelIndex + 2] = b;
+	}
+
+	return data;
+}
+
+const void* TextureGenerator::squareWave(int width, int height, int r, int g, int b) {
+	// Generates a square wave
+	unsigned char* data = new unsigned char[width * height * 3];
+
+	// Fill the texture with transparent
+	for (int i = 0; i < width * height * 3; i++) {
+		data[i] = 0;
+	}
+
+	// Draw the vertical sections
+	int pixelIndex;
+	for (int i = 0; i < height; i++) {
+		// Left/right
+		pixelIndex = i * width * 3;
+		if (i < height / 2) pixelIndex += 3 * (width - 1);
+		data[pixelIndex] = r;
+		data[pixelIndex + 1] = g;
+		data[pixelIndex + 2] = b;
+
+		// Middle
+		pixelIndex = (width / 2 + i * width) * 3;
+		data[pixelIndex] = r;
+		data[pixelIndex + 1] = g;
+		data[pixelIndex + 2] = b;
+	}
+
+	// Draw the horizontal sections
+	for (int i = 0; i < width; i++) {
+		pixelIndex = i * 3;
+		if (i < width / 2) pixelIndex += 3 * width * (height - 1);
+		data[pixelIndex] = r;
+		data[pixelIndex + 1] = g;
+		data[pixelIndex + 2] = b;
+	}
+
+	return data;
+}
+
+const void* TextureGenerator::sawWave(int width, int height, int r, int g, int b) {
+	// Generates a sawtooth wave
+	unsigned char* data = new unsigned char[width * height * 3];
+
+	// Fill the texture with transparent
+	for (int i = 0; i < width * height * 3; i++) {
+		data[i] = 0;
+	}
+
+	// Draw diagonal section
+	int pixelIndex;
+	for (int i = 0; i < width; i++) {
+		pixelIndex = (i + (i + height / 2) % height * width) * 3;
+		data[pixelIndex] = r;
+		data[pixelIndex + 1] = g;
+		data[pixelIndex + 2] = b;
+	}
+
+	// Draw vertical section
+	for (int i = 0; i < height; i++) {
+		pixelIndex = (width / 2 + i * width) * 3;
+		data[pixelIndex] = r;
+		data[pixelIndex + 1] = g;
+		data[pixelIndex + 2] = b;
+	}
+
+	return data;
+}
+
+const void* TextureGenerator::solidColor(int width, int height, int r, int g, int b) {
+	// Generates a solid color
+	unsigned char* data = new unsigned char[width * height * 3];
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			// Index of the pixel we are currently writing
+			int pixelIndex = (i + j * width) * 3;
+			data[pixelIndex] = r;
+			data[pixelIndex + 1] = g;
+			data[pixelIndex + 2] = b;
+		}
+	}
+
+	return data;
+}
+
+const void* TextureGenerator::sky(int width, int height) {
+	// Generates a solid color
+	unsigned char* data = new unsigned char[width * height * 3];
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			// Index of the pixel we are currently writing
+			int pixelIndex = (i + j * width) * 3;
+			float gradient = (float)j / (float)height;
+			data[pixelIndex] = 190 - 130 * gradient;
+			data[pixelIndex + 1] = 220 - 100 * gradient;
+			data[pixelIndex + 2] = 234 - 47 * gradient;
+		}
 	}
 
 	return data;

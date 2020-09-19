@@ -4,49 +4,32 @@
 #include <glm/glm.hpp>
 
 #include "AudioManager.h"
-#include "TextureGenerator.h"
+#include "GameScene.h"
 #include "Renderer.h"
+#include "Scene.h"
+#include "TextureGenerator.h"
 #include "WindowManager.h"
 
 int main() {
 	// Initialize backend interfaces
-	WindowManager wm = WindowManager(800, 500, "First window");
+	WindowManager wm = WindowManager(800, 500, "Airwaves");
 	Renderer renderer = Renderer();
 	AudioManager audio = AudioManager();
 
-	// Generate a 440 Hz sine wave
-	int wave = audio.newWave(0);
-	audio.setWaveAttribs(wave, 440, 0.5f);
-	int wave2 = audio.newWave(1);
-	audio.setWaveAttribs(wave2, 100, 0.1f);
+	// Initialize scenes
+	GameScene gameScene = GameScene(renderer);
+	Scene& currentScene = gameScene;
 
-	// Generate the textures
-	// Yellow wave
-	const void* textureData = TextureGenerator::wave(128, 128, 255, 255, 0);
-	unsigned int waveTexture = renderer.loadTexture(128, 128, textureData);
-	delete[] textureData;
-
-	// Blue checkerboard
-	textureData = TextureGenerator::checker(16, 16, 0, 0, 255);
-	unsigned int checkerTexture = renderer.loadTexture(16, 16, textureData);
-	delete[] textureData;
-
-	// Shiny tiles
-	textureData = TextureGenerator::shinyTile(512, 512);
-	unsigned int tileTexture = renderer.loadTexture(512, 512, textureData);
-	delete[] textureData;
-
-	// Camera pos
-	glm::vec2 cameraPosition = glm::vec2(0.0f);
-
-	// Toggle variables
+	// Fullscreen toggle variable
 	bool fullscreenToggle = false;
 	bool fullscreenTogglePressed = false;
 
-	// Main loop
+	// Start audio playback
 	audio.start();
+
+	// Main loop
 	while (!wm.update()) {
-		// Close the game on escape press
+		// Close the game instantly on escape press
 		if (wm.getKey(GLFW_KEY_ESCAPE)) {
 			break;
 		}
@@ -62,26 +45,15 @@ int main() {
 			fullscreenTogglePressed = false;
 		}
 
-		// Control camera with WASD
-		if (wm.getKey(GLFW_KEY_W)) cameraPosition.y += 1.0f * wm.getLastDeltaTime();
-		if (wm.getKey(GLFW_KEY_A)) cameraPosition.x -= 1.0f * wm.getLastDeltaTime();
-		if (wm.getKey(GLFW_KEY_S)) cameraPosition.y -= 1.0f * wm.getLastDeltaTime();
-		if (wm.getKey(GLFW_KEY_D)) cameraPosition.x += 1.0f * wm.getLastDeltaTime();
-
-		renderer.setCamera(cameraPosition, 0.0f, (float)wm.getHeight() / (float)wm.getWidth(), .5f);
+		// Update and render the scene
 		renderer.clear();
-		// Test some sprites
-		renderer.render(1.0f, -1.0f, 1.0f, 1.0f, 0.0f, tileTexture);
-		renderer.render(1.0f, 0.0f, 1.0f, 1.0f, 0.0f, tileTexture);
-		renderer.render(1.0f, 1.0f, 1.0f, 1.0f, 0.0f, tileTexture);
-		renderer.render(-1.0f, -1.0f, 1.0f, 1.0f, 0.0f, tileTexture);
-		renderer.render(-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, tileTexture);
-		renderer.render(-1.0f, 1.0f, 1.0f, 1.0f, 0.0f, tileTexture);
-		renderer.render(0.0f, -1.0f, 1.0f, 1.0f, 0.0f, checkerTexture);
-		renderer.render(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, checkerTexture);
-		renderer.render(0.0f, 1.0f, 1.0f, 1.0f, 0.0f, checkerTexture);
-		renderer.render(0.0f, 0.0f, 3.0f, 1.0f, -0.5f, waveTexture);
+		currentScene.update(audio, wm);
+		currentScene.render(renderer);
 	}
+
+	wm.fullscreen(false);
+
+	// Stop audio playback
 	audio.stop();
 
 	return 0;

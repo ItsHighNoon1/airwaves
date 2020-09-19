@@ -46,6 +46,11 @@ bool WindowManager::update() {
 	lastTime = currentTime;
 	frameTime = deltaNs * 0.000000001f;
 
+	// If the frame time was excessively long, it's probably a better idea to pretend it was 0
+	if (frameTime > 0.1f) {
+		frameTime = 0.0f;
+	}
+
 	// Return window status
 	return glfwWindowShouldClose(window);
 }
