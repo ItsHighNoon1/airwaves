@@ -2,49 +2,23 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <portaudio/portaudio.h>
 
+#include "AudioManager.h"
 #include "TextureGenerator.h"
 #include "Renderer.h"
 #include "WindowManager.h"
 
-int squareWave = 0;
-
-int paStreamCallback(const void* input, void* output, unsigned long frameCount, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags, void* userData) {
-	// Cast output to a float* so we can use it
-	float* out = (float*)output;
-	std::cout << "Filling buffer: " << frameCount << std::endl;
-	for (unsigned int i = 0; i < frameCount; i++) {
-		squareWave++;
-		float intensity = squareWave / 500;
-		squareWave %= 1000;
-		*(out++) = intensity;
-		*(out++) = intensity; // Seems left and right are packed
-	}
-	return 0;
-}
-
 int main() {
-	// Initialize PortAudio
-	// TODO move this
-	Pa_Initialize();
-
-	// Open an audio stream
-	// TODO move this
-	PaStream* stream;
-	Pa_OpenDefaultStream(&stream, 0, 2, paFloat32, 44100, paFramesPerBufferUnspecified, paStreamCallback, nullptr);
-
-	// Start the audio stream
-	// TODO move this
-	auto paErr = Pa_StartStream(stream);
-	if (paErr != paNoError) {
-		std::cout << "PortAudio crashed!" << std::endl;
-		return -1;
-	}
-
-	// Initialize window and renderer
+	// Initialize backend interfaces
 	WindowManager wm = WindowManager(800, 500, "First window");
 	Renderer renderer = Renderer();
+	AudioManager audio = AudioManager();
+
+	// Generate a 440 Hz sine wave
+	int wave = audio.newWave(0);
+	audio.setWaveAttribs(wave, 440, 0.5f);
+	int wave2 = audio.newWave(1);
+	audio.setWaveAttribs(wave2, 100, 0.1f);
 
 	// Generate the textures
 	// Yellow wave
@@ -70,6 +44,7 @@ int main() {
 	bool fullscreenTogglePressed = false;
 
 	// Main loop
+	audio.start();
 	while (!wm.update()) {
 		// Close the game on escape press
 		if (wm.getKey(GLFW_KEY_ESCAPE)) {
@@ -107,11 +82,7 @@ int main() {
 		renderer.render(0.0f, 1.0f, 1.0f, 1.0f, 0.0f, checkerTexture);
 		renderer.render(0.0f, 0.0f, 3.0f, 1.0f, -0.5f, waveTexture);
 	}
-
-	// Terminate PortAudio
-	// TODO move this
-	Pa_StopStream(stream);
-	Pa_Terminate();
+	audio.stop();
 
 	return 0;
 }
