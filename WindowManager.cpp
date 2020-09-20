@@ -73,7 +73,7 @@ void WindowManager::getMousePos(float* x, float* y) {
 	mx /= width;
 	my /= height;
 	*x = (float)mx * 2.0f - 1.0f;
-	*y = (float)my * 2.0f - 1.0f;
+	*y = (float)my * -2.0f + 1.0f;
 }
 
 void WindowManager::fullscreen(bool fullscreen) {

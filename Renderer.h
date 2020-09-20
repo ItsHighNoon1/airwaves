@@ -12,6 +12,7 @@ public:
 	~Renderer();
 	void render(float x, float y, float w, float h, float r, unsigned int texture);
 	void setCamera(glm::vec2 pos, float rot, float aspectRatio, float size);
+	void setOffset(float offset);
 	unsigned int loadTexture(int width, int height, const void* data);
 	void clear();
 private:

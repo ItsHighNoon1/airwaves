@@ -52,6 +52,11 @@ void Renderer::setCamera(glm::vec2 pos, float rot, float aspectRatio, float size
 	viewMatrix = glm::translate(viewMatrix, glm::vec3(-pos, 0.0f));
 }
 
+void Renderer::setOffset(float offset) {
+	// Wrapper
+	shader.uploadOffset(offset);
+}
+
 unsigned int Renderer::loadTexture(int width, int height, const void* data) {
 	// Wrapper
 	return loader.loadTexture(width, height, data);

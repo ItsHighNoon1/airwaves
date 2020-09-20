@@ -10,9 +10,10 @@ layout (location = 1) in vec2 aTex;
 out vec2 vTex;
 
 uniform mat4 u_modelViewProjectionMatrix;
+uniform float u_xOffset;
 
 void main() {
-	vTex = aTex;
+	vTex = vec2(aTex.x + u_xOffset, aTex.y);
 	gl_Position = u_modelViewProjectionMatrix * vec4(aPos.x, aPos.y, 0.0, 1.0);
 }
 )";

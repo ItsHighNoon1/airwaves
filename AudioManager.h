@@ -13,7 +13,7 @@ public:
 	void stop();
 	int newWave(int type);
 	void deleteWave(int wave);
-	void setWaveAttribs(int wave, int frequency, float volume);
+	void setWaveAttribs(int wave, int type, int frequency, float volume);
 private:
 	struct Wave {
 		int type;

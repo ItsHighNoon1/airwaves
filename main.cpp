@@ -17,7 +17,7 @@ int main() {
 	AudioManager audio = AudioManager();
 
 	// Initialize scenes
-	GameScene gameScene = GameScene(renderer);
+	GameScene gameScene = GameScene(renderer, audio);
 	Scene& currentScene = gameScene;
 
 	// Fullscreen toggle variable

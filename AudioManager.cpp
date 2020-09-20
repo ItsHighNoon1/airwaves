@@ -41,9 +41,10 @@ void AudioManager::deleteWave(int wave) {
 	wavesPlaying.erase(wave);
 }
 
-void AudioManager::setWaveAttribs(int wave, int frequency, float volume) {
+void AudioManager::setWaveAttribs(int wave, int type, int frequency, float volume) {
 	// Set some things that we don't need a calculation for
 	wavesPlaying[wave].volume = volume;
+	wavesPlaying[wave].type = type;
 
 	// dx depends on the type of wave we're dealing with
 	switch (wavesPlaying[wave].type) {

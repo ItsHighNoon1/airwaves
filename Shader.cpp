@@ -27,8 +27,9 @@ Shader::Shader() {
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	// Get the location of the matrix uniform
+	// Get the location of the uniforms
 	matrixLocation = glGetUniformLocation(programID, "u_modelViewProjectionMatrix");
+	offsetLocation = glGetUniformLocation(programID, "u_xOffset");
 }
 
 void Shader::start() {
@@ -44,6 +45,11 @@ void Shader::stop() {
 void Shader::uploadMatrix(float* matrix) {
 	// Upload modelViewProjection matrix
 	glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, matrix);
+}
+
+void Shader::uploadOffset(float offset) {
+	// Upload offset
+	glUniform1f(offsetLocation, offset);
 }
 
 void Shader::cleanUp() {
