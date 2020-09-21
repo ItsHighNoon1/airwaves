@@ -8,11 +8,7 @@
 #include "Shader.h"
 
 Renderer::Renderer() {
-#ifdef _DEBUG
-	glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-#else
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-#endif
 }
 
 Renderer::~Renderer() {

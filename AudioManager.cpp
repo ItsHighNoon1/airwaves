@@ -79,6 +79,7 @@ int AudioManager::streamCallback(const void* input, void* output, unsigned long 
 	// Iterate over the list of waves
 	AudioManager* currentManager = (AudioManager*)userData;
 	for (std::map<int, Wave>::iterator it = currentManager->wavesPlaying.begin(); it != currentManager->wavesPlaying.end(); it++) {
+		if (it->second.volume <= 0.0f) continue;
 		out = startOfFrame;
 		for (unsigned long i = 0; i < frameCount; i++) {
 			float intensity = 0.0f;

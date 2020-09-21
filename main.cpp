@@ -50,7 +50,6 @@ int main() {
 		currentScene.update(audio, wm);
 		currentScene.render(renderer);
 	}
-
 	wm.fullscreen(false);
 
 	// Stop audio playback
