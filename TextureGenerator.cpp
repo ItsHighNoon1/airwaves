@@ -2,6 +2,9 @@
 
 #include <math.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 const void* TextureGenerator::shinyTile(int width, int height) {
 	// Generates diamond tiles
 	unsigned char* data = new unsigned char[width * height * 3];
@@ -208,4 +211,14 @@ const void* TextureGenerator::sky(int width, int height) {
 	}
 
 	return data;
+}
+
+const void* TextureGenerator::realTexture(int* width, int* height, const char* name) {
+	// Wrapper
+	return stbi_load(name, width, height, nullptr, 3);
+}
+
+void TextureGenerator::freeLoaded(const void* loadedTexture) {
+	// Wrapper
+	stbi_image_free((void*)loadedTexture);
 }

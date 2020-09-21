@@ -1,10 +1,10 @@
 #include "GameScene.h"
 
-#include <iostream>
+#include <string>
 
 #include "TextureGenerator.h"
 
-GameScene::GameScene(Renderer& renderer, AudioManager& audio) {
+GameScene::GameScene(Renderer& renderer, AudioManager& audio, void (*exit)(int)) : endFunction(exit) {
 	// Load textures
 	// Waves
 	const void* redSineData = TextureGenerator::sineWave(16, 16, 255, 0, 0);
@@ -23,6 +23,29 @@ GameScene::GameScene(Renderer& renderer, AudioManager& audio) {
 	white = renderer.loadTexture(1, 1, whiteData);
 	const void* skyData = TextureGenerator::sky(256, 256);
 	sky = renderer.loadTexture(256, 256, skyData);
+	// Numbers
+	int w;
+	int h;
+	const void* num0Data = TextureGenerator::realTexture(&w, &h, "res/0.png");
+	num0 = renderer.loadTexture(w, h, num0Data);
+	const void* num1Data = TextureGenerator::realTexture(&w, &h, "res/1.png");
+	num1 = renderer.loadTexture(w, h, num1Data);
+	const void* num2Data = TextureGenerator::realTexture(&w, &h, "res/2.png");
+	num2 = renderer.loadTexture(w, h, num2Data);
+	const void* num3Data = TextureGenerator::realTexture(&w, &h, "res/3.png");
+	num3 = renderer.loadTexture(w, h, num3Data);
+	const void* num4Data = TextureGenerator::realTexture(&w, &h, "res/4.png");
+	num4 = renderer.loadTexture(w, h, num4Data);
+	const void* num5Data = TextureGenerator::realTexture(&w, &h, "res/5.png");
+	num5 = renderer.loadTexture(w, h, num5Data);
+	const void* num6Data = TextureGenerator::realTexture(&w, &h, "res/6.png");
+	num6 = renderer.loadTexture(w, h, num6Data);
+	const void* num7Data = TextureGenerator::realTexture(&w, &h, "res/7.png");
+	num7 = renderer.loadTexture(w, h, num7Data);
+	const void* num8Data = TextureGenerator::realTexture(&w, &h, "res/8.png");
+	num8 = renderer.loadTexture(w, h, num8Data);
+	const void* num9Data = TextureGenerator::realTexture(&w, &h, "res/9.png");
+	num9 = renderer.loadTexture(w, h, num9Data);
 
 	// Clean up, if I clean up right after loading sometimes there will be a heap error
 	delete[] redSineData;
@@ -32,6 +55,17 @@ GameScene::GameScene(Renderer& renderer, AudioManager& audio) {
 	delete[] redData;
 	delete[] whiteData;
 	delete[] skyData;
+	// These textures were loaded with stbi, so they have different cleanup
+	TextureGenerator::freeLoaded(num0Data);
+	TextureGenerator::freeLoaded(num1Data);
+	TextureGenerator::freeLoaded(num2Data);
+	TextureGenerator::freeLoaded(num3Data);
+	TextureGenerator::freeLoaded(num4Data);
+	TextureGenerator::freeLoaded(num5Data);
+	TextureGenerator::freeLoaded(num6Data);
+	TextureGenerator::freeLoaded(num7Data);
+	TextureGenerator::freeLoaded(num8Data);
+	TextureGenerator::freeLoaded(num9Data);
 
 	// Load audio
 	playerSound = audio.newWave(0);
@@ -40,14 +74,14 @@ GameScene::GameScene(Renderer& renderer, AudioManager& audio) {
 	for (int i = 0; i < 100; i++) {
 		speedLines.push_back(glm::vec2(35.0f * rand.randFloat() - 15.0f, 20.0f * rand.randFloat() - 10.0f));
 	}
+}
 
-	// Test wave
-	BarrierWave wave;
-	wave.start = glm::vec2(30.0f, 11.0f);
-	wave.end = glm::vec2(30.0f, -11.0f);
-	wave.width = 2.0f;
-	wave.type = 0;
-	obstacles.push_back(wave);
+void GameScene::init(int) {
+	// Set some things to 0 for the next game
+	secondTimer = 0.0f;
+	speed = 20.0f;
+	score = 0.0f;
+	iFrames = 0.0f;
 }
 
 void GameScene::render(Renderer& renderer) {
@@ -115,11 +149,33 @@ void GameScene::render(Renderer& renderer) {
 			y += dy;
 		}
 	}
+	renderer.setOffset(0.0f);
 
 	// Health bar
 	float lostHealth = 1.0f - health;
 	renderer.render(-3.0f * lostHealth, 9.0f, 6.0f * health, 1.0f, 0.0f, green);
 	renderer.render(3.0f * health, 9.0f, 6.0f * lostHealth, 1.0f, 0.0f, red);
+
+	// Score
+	std::string scoreString = std::to_string((int)score);
+	scoreString.insert(scoreString.begin(), 10 - scoreString.length(), '0');
+	float x = -2.5f;
+	for (int i = 0; i <= 10; i++) {
+		// Render the character
+		switch (scoreString.c_str()[i]) {
+			case '1': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num1); break;
+			case '2': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num2); break;
+			case '3': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num3); break;
+			case '4': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num4); break;
+			case '5': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num5); break;
+			case '6': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num6); break;
+			case '7': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num7); break;
+			case '8': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num8); break;
+			case '9': renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num9); break;
+			default: renderer.render(x, 8.0f, 0.5f, -0.5f, 0.0f, num0);
+		}
+		x += 0.5f;
+	}
 }
 
 void GameScene::update(AudioManager& am, WindowManager& wm) {
@@ -179,9 +235,16 @@ void GameScene::update(AudioManager& am, WindowManager& wm) {
 	} else {
 		currentWaveType = 0;
 	}
-	am.setWaveAttribs(playerSound, currentWaveType, 440 * powf(4.0f, mousePos.y / 10.0f), 0.1f);
+	am.setWaveAttribs(playerSound, currentWaveType, 440 + (int)(330.0f * mousePos.y / 10.0f), 0.1f);
 	
 	for (auto& wave : obstacles) {
+		// If the wave is offscreen, ignore it
+		if (wave.start.x <= -30.0f) {
+			am.setWaveAttribs(wave.audioWave, 0, 1, 0.0f);
+			wave.type = -1;
+			continue;
+		}
+
 		// Move the waves
 		wave.start.x -= speed * wm.getLastDeltaTime();
 		wave.end.x -= speed * wm.getLastDeltaTime();
@@ -190,7 +253,7 @@ void GameScene::update(AudioManager& am, WindowManager& wm) {
 		if (wave.audioWave >= 0) {
 			float volume = 20.0f - fabs(wave.start.x);
 			volume *= 0.001f;
-			am.setWaveAttribs(wave.audioWave, wave.type, 440 * powf(4.0f, (wave.start.y + wave.end.y) / 20.0f), volume);
+			am.setWaveAttribs(wave.audioWave, wave.type, 440 + (int)(330.0f * (wave.start.y + wave.end.y) / 20.0f), volume);
 		}
 
 		// Check if you are colliding with the wave
@@ -202,10 +265,10 @@ void GameScene::update(AudioManager& am, WindowManager& wm) {
 			if (glm::distance(mousePos, proj) < wave.width) {
 				// You are colliding with the wave
 				if (wave.type == currentWaveType) {
-					health -= 0.1f;
+					health -= 0.334f;
 					// If you have 0 health, die
 					if (health <= 0.0f) {
-						die();
+						die(am);
 						break;
 					}
 					iFrames = 1.0f;
@@ -214,11 +277,22 @@ void GameScene::update(AudioManager& am, WindowManager& wm) {
 		}
 	}
 
+	// Iterate over waves again, but this time destroy any waves that are offscreen
+	for (int i = 0; i < obstacles.size(); i++) {
+		if (obstacles[i].type == -1) {
+			obstacles.erase(obstacles.begin() + i);
+			break; // Less likely to break the program if we break and wait till next frame to deal with more
+		}
+	}
+
 	// Play a sound while recovering from immunity
 	iFrames -= wm.getLastDeltaTime();
 	if (iFrames > 0.0f) {
 		am.setWaveAttribs(playerSound, 2, 50, 0.1f);
 	}
+
+	// Since we haven't died, add to score
+	score += 100.0f * speed * wm.getLastDeltaTime();
 }
 
 void GameScene::everySecond(AudioManager& am) {
@@ -229,23 +303,37 @@ void GameScene::everySecond(AudioManager& am) {
 		float y = 10.0f * rand.randFloat();
 		if (rand.randInt(0, 1)) {
 			wave.start = glm::vec2(x, y);
-			wave.end = glm::vec2(x, -y + 20.0f);
+			wave.end = glm::vec2(x, y + 5.0f);
 		} else {
 			wave.start = glm::vec2(x, -y);
-			wave.end = glm::vec2(x, y - 20.0f);
+			wave.end = glm::vec2(x, -y - 5.0f);
 		}
 		wave.width = 1.0f;
 		wave.type = rand.randInt(0, 2);
 		wave.audioWave = am.newWave(wave.type);
 		obstacles.push_back(wave);
+		audioToCleanUp.push_back(wave.audioWave);
 	}
 
 	// Increase the sped
 	speed += 0.1f;
 }
 
-void GameScene::die() {
+void GameScene::die(AudioManager& am) {
 	// Die
 	health = 1.0f;
 	obstacles.clear();
+	stopSounds(am);
+	endFunction(score);
+}
+
+void GameScene::stopSounds(AudioManager& am) {
+	// Delete sounds
+	am.stop();
+	for (int& wave : audioToCleanUp) {
+		am.deleteWave(wave);
+	}
+	audioToCleanUp.clear();
+	am.setWaveAttribs(playerSound, 0, 1, 0.0f);
+	am.start();
 }

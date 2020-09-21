@@ -11,4 +11,6 @@ public:
 	static const void* sawWave(int width, int height, char r, char g, char b);
 	static const void* solidColor(int width, int height, char r, char g, char b);
 	static const void* sky(int width, int height);
+	static const void* realTexture(int* width, int* height, const char* name);
+	static void freeLoaded(const void* loadedTexture);
 };

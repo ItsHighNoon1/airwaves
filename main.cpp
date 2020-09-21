@@ -5,25 +5,43 @@
 
 #include "AudioManager.h"
 #include "GameScene.h"
+#include "MenuScene.h"
 #include "Renderer.h"
 #include "Scene.h"
 #include "TextureGenerator.h"
 #include "WindowManager.h"
 
+// Function declarations
+void goToGame(int);
+void returnToMenu(int score);
+
+// Backend interfaces
+WindowManager wm = WindowManager(800, 500, "Airwaves");
+Renderer renderer = Renderer();
+AudioManager audio = AudioManager();
+
+// Scenes
+MenuScene menuScene = MenuScene(renderer, audio, goToGame);
+GameScene gameScene = GameScene(renderer, audio, returnToMenu);
+bool inGame;
+
+// Fullscreen toggle variable
+bool fullscreenToggle = false;
+bool fullscreenTogglePressed = false;
+
+// Callback to start playing
+void goToGame(int) {
+	gameScene.init(0);
+	inGame = true;
+}
+
+// Callback for when you die
+void returnToMenu(int score) {
+	menuScene.init(score);
+	inGame = false;
+}
+
 int main() {
-	// Initialize backend interfaces
-	WindowManager wm = WindowManager(800, 500, "Airwaves");
-	Renderer renderer = Renderer();
-	AudioManager audio = AudioManager();
-
-	// Initialize scenes
-	GameScene gameScene = GameScene(renderer, audio);
-	Scene& currentScene = gameScene;
-
-	// Fullscreen toggle variable
-	bool fullscreenToggle = false;
-	bool fullscreenTogglePressed = false;
-
 	// Start audio playback
 	audio.start();
 
@@ -47,8 +65,13 @@ int main() {
 
 		// Update and render the scene
 		renderer.clear();
-		currentScene.update(audio, wm);
-		currentScene.render(renderer);
+		if (inGame) {
+			gameScene.update(audio, wm);
+			gameScene.render(renderer);
+		} else {
+			menuScene.update(audio, wm);
+			menuScene.render(renderer);
+		}
 	}
 	wm.fullscreen(false);
 

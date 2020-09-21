@@ -25,6 +25,11 @@ void AudioManager::stop() {
 	Pa_StopStream(stream);
 }
 
+void AudioManager::setVolume(float volume) {
+	// Set volume
+	playbackVolume = volume;
+}
+
 int AudioManager::newWave(int type) {
 	// Create a new wave
 	Wave w;
@@ -63,8 +68,6 @@ void AudioManager::setWaveAttribs(int wave, int type, int frequency, float volum
 	}
 
 }
-
-float x;
 
 int AudioManager::streamCallback(const void* input, void* output, unsigned long frameCount, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags, void* userData) {
 	// Cast output to a float* so we can use it, then store it for backup
@@ -108,7 +111,7 @@ int AudioManager::streamCallback(const void* input, void* output, unsigned long 
 				break;
 			}
 			// Output wave volume to audio buffer
-			*(out++) += (intensity * it->second.volume);
+			*(out++) += (intensity * it->second.volume * currentManager->playbackVolume);
 		}
 	}
 	return 0;
