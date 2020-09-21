@@ -1,7 +1,7 @@
 # Airwaves
 Open source game for the [itch.io Open Jam](https://itch.io/jam/open-jam-2020).
 
-Use your mouse to control a travelling radio wave, and try not to get corrupted!
+Use your mouse to control a traveling radio wave, and try not to get corrupted!
 
 ## How to play
 You are a wave, and you must dodge other waves that may interfere with your signal.
